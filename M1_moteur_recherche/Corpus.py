@@ -56,7 +56,7 @@ class Corpus():
         self.ndoc = len(id2doc)   # nombre de documents
         self.naut = len(id2aut)   # nombre d'auteurs
         self.__vocabulaire = set()    # set au départ pour éviter les doublons, puis mot netttoyé
-        self.frequence_mot = {}  # dictionnaire de fréquence des mots
+        self.freq = {}  # (freq) df avec Mot, TermFrequency(nombre d'occurence du mot), DocumentFrequency(nombre de documents qui contiennent le mot)
         self.vocab = {} # clef : mots, valeurs : dictionnaire id, nb_frequence, nbOccurrencesTotales, nbDocumentsContenantMot
         self.mat_TF = None # matrice de co-occurence Document(j) x Mot(i), conversion plus tard
         self.mat_TFxIDF = None # Alternative à la matrice TF
@@ -97,6 +97,28 @@ class Corpus():
         @return: Dictionnaire des documents. Clé : ID, Valeur : Document.
         """
         return self.id2doc
+    
+    def getVocab_digeste(self, nbMots= 10):
+        """
+        @fn getVocab_digeste
+        @brief Retourne les premiers nbMots(par défaut 10) du vocabulaire du corpus.
+
+        @return: Liste de dictionnaires(nbMots)
+        """
+        vocab_digeste = self.vocab.items()
+
+        vocab_digeste = list(vocab_digeste)[:nbMots]
+
+        return vocab_digeste
+    
+    def getMat_TF(self):
+        """
+        @fn getMat_TF
+        @brief Retourne la matrice de co-occurence Document(j) x Mot(i) du corpus.
+
+        @return: Matrice de co-occurence Document(j) x Mot(i).
+        """
+        return self.mat_TF
 
 # =============== 2.8 : REPRESENTATION =============== # 
     # !!!!!!!!Correction de G. Poux-Médard, 2021-2022!!!!!!!!
@@ -160,8 +182,8 @@ class Corpus():
         return chaine_unique
     
     def definir_vocab(self):
-        freq_counter = Counter()  # compteur de fréquence
-        doc_counter = Counter()  # compteur de document fréquence
+        freq_counter = Counter()  # compteur de TermFrequency
+        doc_counter = Counter()  # compteur de document TermFrequency
 
         for doc in self.id2doc.values():
             vocab = self.nettoyer_texte(doc.texte)
@@ -170,24 +192,24 @@ class Corpus():
             doc_counter.update(set(mots))  # Utilisation d'un set pour compter chaque mot une seule fois par document
             self.__vocabulaire.update(vocab.split(" "))  # on coupe la chaine en liste à chaque espace, update est une insertion dans un set
 
-        self.frequence_mot = pd.DataFrame(list(freq_counter.items()), columns=['Mot', 'Fréquence'])
-        self.frequence_mot = self.frequence_mot.sort_values(by='Fréquence', ascending=False)
+        self.freq = pd.DataFrame(list(freq_counter.items()), columns=['Mot', 'TermFrequency'])
+        self.freq = self.freq.sort_values(by='TermFrequency', ascending=False)
 
         # Ajout de la colonne Document Frequency (DF)
-        self.frequence_mot['DocumentFrequency'] = self.frequence_mot['Mot'].apply(lambda mot: doc_counter[mot]) # ajout de la colonne DF, utilisation de chat GPT pour avancer au TD 7
+        self.freq['DocumentFrequency'] = self.freq['Mot'].apply(lambda mot: doc_counter[mot]) # ajout de la colonne DF, utilisation de chat GPT pour avancer au TD 7
 
         # peuplement de self.vocab
-        self.frequence_mot.insert(0, 'ID', range(0, 0 + len(self.frequence_mot)))
-        vocab = self.frequence_mot.set_index('Mot').to_dict(orient='index')
-        self.vocab = {mot: {'ID': info['ID'], 'Fréquence': info['Fréquence'], 'DocumentFrequency': info['DocumentFrequency']} for mot, info in vocab.items()}
+        self.freq.insert(0, 'ID', range(0, 0 + len(self.freq)))
+        vocab = self.freq.set_index('Mot').to_dict(orient='index')
+        self.vocab = {mot: {'ID': info['ID'], 'TermFrequency': info['TermFrequency'], 'DocumentFrequency': info['DocumentFrequency']} for mot, info in vocab.items()}
 
         return self.vocab
 
 
-    def get_frequence_mot(self):
-        if not self.frequence_mot:
+    def get_freq(self):
+        if not self.freq:
             self.definir_vocab()
-        return self.frequence_mot
+        return self.freq
     
     # return sparse matrix
     def definir_matrice(self):
@@ -212,7 +234,7 @@ class Corpus():
             indice += 1
         # Conversion en matrice creuse
         self.mat_TF = scipy.sparse.csr_matrix(self.mat_TF)
-        print(f"Dimension de la matrice",self.mat_TF.shape)
+        print(f"Dimension de la matrice : {self.mat_TF.shape}")
         return self.mat_TF
     
 

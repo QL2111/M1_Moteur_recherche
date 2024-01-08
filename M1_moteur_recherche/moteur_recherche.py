@@ -42,6 +42,8 @@ from Corpus import Corpus
 # TODO: Utilité de certaines variables globales ? (collection, collection_author)
 # TODO: Faire cohabiter Pickle et Singleton sinon on va transformer en df
 # TODO: Lorsqu'on passe le call API, on n'a pas encore fait la suppresion des textes trop petits, on va donc avoir des différences (notamment pour id2doc)
+# TODO: Lorsqu'on définit vocab, la fréquence de l'apparition du mot est différente entre definir_vocab()-> Counter() et calculer_stats_vocab() -> traitement sparse_matrix
+
 
 Textes = []   # docs pour stocker les textes(corps de texte)
 src = [] # Reddit ou Arxiv (stock les sources)
@@ -462,8 +464,8 @@ def main():
     statistiques_auteur("Dongrui Wu") # Plus tard remplacer par un input de l'utilisateur
     print("")
     ##########Création du Corpus + Patrons de conception##########
-    # Ici on peuple directement notre corpus avec nos dictionnaires en les passant dans le constructeur
-    # mais pour la démonstration du Pattern Factory, on va donner un dictionnaire vide pour ne pas faire de doublons
+    # D'habitude on aurait peupler directement notre corpus avec nos dictionnaires en les passant dans le constructeur
+    # Pour la démonstration du Pattern Factory, on va donner un dictionnaire vide pour ne pas faire de doublons
     corpus = Corpus("Mon corpus", id2doc = {}, id2aut = id2aut)
 
     # Test Singleton
@@ -492,9 +494,11 @@ def main():
     save_json(corpus)
     corpus = load_json()
     # print(type(corpus))
-    # On vérifie que ça fonctionne correctement
+
+
     print("-----------------Visualisation du corpus après sauvegarde en JSON-----------------")
     print("")
+    # On vérifie que ça fonctionne correctement
     corpus.show(n_docs=5, tri="123")
     print("")
     print("-----------------Manipulation sur le corpus-----------------")
@@ -503,8 +507,39 @@ def main():
     print("Test de la fonction search")
     print(corpus.search("hypertrophy", chaine_unique)) # On recherche le mot hypertrophy dans notre corpus et on renvoie le passage(5 caractères à droite et à gauche)
     print("")
+    print("Test de la fonction concorder")
+    print(corpus.concorder("hypertrophy", chaine_unique, 5)) # On recherche le mot hypertrophy dans notre corpus et on renvoie le passage(5 caractères à droite et à gauche)
+    print("")
 
+    print("Test nettoyer texte")
+    print(f"Version non nettoyée :{chaine_unique[:10]}")
+    chaine_unique = corpus.nettoyer_texte(chaine_unique)
+    print(f"Version nettoyée :{chaine_unique[:10]} \n") # On nettoie le texte
+
+    print("Test tableau freq(Fréquence du mot dans le corpus et Nombre de document le comportant) Trié par ordre décroissant de Fréquence")
+    corpus.definir_vocab()
+    print(f"{corpus.freq.head()} \n")
+
+    print("Test vocab, version 1")
+    # getVocab_digeste -> affiche les 10 premiers mots du vocabulaire avec leur fréquence et le nombre de documents le comportant
+    print(corpus.getVocab_digeste(10)) # clef : mots, valeurs : dictionnaire id, nb_frequence, nbOccurrencesTotales, nbDocumentsContenantMot
+    print("")
+
+    print("Test sparse matrix")
+    # print(corpus.definir_matrice()) # retourne la matrice creuse, print les éntrées non nulles (DocumentxMot) et le nb d'occurence
+
+    # on ajoute les clefs valeurs nbTotalOccurenceCorpus et nbTotalOccurenceDoc dans le dictionnaire vocab
+    corpus.calculer_stats_vocab() # definir_matrice est appelé dans cette fonction car on calcul le nombre d'occurence total du mot dans le corpus et le nombre de document le comportant
+    # On l'a déjà calculé dans la fonction definir_vocab mais cette fois-ci, on le fait à partir de la matrice creuse
+    print(corpus.getMat_TF())
+    print(f"\nTest vocab après calcul des statistiques via la matrice creuse : \n{corpus.getVocab_digeste(10)} \n")
+
+    print("On voit qu'il y a un problème TermFrequency est différent de OccurencesTotales alors que les valeurs devraient être égales")
     
+    print("Test de la matrice TF-IDF")
+    print(corpus.definir_mat_TFxIDF())
+
+
     
 
 
@@ -521,6 +556,7 @@ if __name__ == '__main__':
     # https://www.geeksforgeeks.org/different-ways-to-iterate-over-rows-in-pandas-dataframe/
     # https://stackoverflow.com/questions/16476924/how-to-iterate-over-rows-in-a-dataframe-in-pandas
     # https://medium.com/@amirm.lavasani/design-patterns-in-python-factory-method-1882d9a06cb4
+    # https://www.adamsmith.haus/python/answers/how-to-get-the-first-n-items-from-a-dictionary-in-python
     # Corpus, function show, Correction de G. Poux-Médard, 2021-2022
     # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.from_dict.html
     # https://docs.python.org/3/library/json.html
