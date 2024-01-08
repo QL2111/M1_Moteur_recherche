@@ -264,8 +264,9 @@ class Corpus():
         if not self.mat_TFxIDF:
             self.definir_matrice()
 
+        # print(type(self.mat_TF))
         # Utilisation de la classe TfidfTransformer de scikit-learn
         transformer = TfidfTransformer()
-        self.mat_TFxIDF = transformer.fit_transform(self.mat_TFxIDF)
+        self.mat_TFxIDF = transformer.fit_transform(self.mat_TF)
 
         return self.mat_TFxIDF

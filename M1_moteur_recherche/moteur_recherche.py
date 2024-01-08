@@ -410,6 +410,30 @@ def load_json():
 
     return corpus   
 
+def moteur_recherche(mot_clefs, corpus):
+    query_vector = np.zeros(len(corpus.vocab)) # vecteur de la taille du vocabulaire
+
+    for mot_clef in mot_clefs.split(" "):
+        # Si le mot que l'utilisateur à rentrer est dans le vocabulaire, on incrémente le vecteur
+        if mot_clef in corpus.vocab:
+            print(f"Mot-clé : {mot_clef}, ID : {corpus.vocab[mot_clef]['ID']}")
+            query_vector[corpus.vocab[mot_clef]['ID']] += 1
+
+    print("Vecteur de requête:", query_vector)
+
+    # similarité entre votre vecteur requ^ete et tous les documents, -> similarité cosinus(voir TD 7 fin de page)
+    similarites = cosine_similarity(query_vector.reshape(1, -1), corpus.mat_TF)
+
+    # indices des documents triés par ordre décroissant
+    sorted_indices = similarites.argsort()[0][::-1]
+
+    # trier les scores résultats et associé les meilleurs résultats.
+    # On affiche les meilleurs résultats
+    for index in sorted_indices[:3]:
+        print(f"Document {index}: Similarité Cosinus = {similarites[0, index]}")
+        print(corpus.id2doc[index])  
+        print("\n")
+
 def main():
     """
     @brief Fonction principale du programme.
@@ -496,13 +520,10 @@ def main():
     # print(type(corpus))
 
 
-    print("-----------------Visualisation du corpus après sauvegarde en JSON-----------------")
-    print("")
+    print("\n-----------------Visualisation du corpus après sauvegarde en JSON-----------------\n")
     # On vérifie que ça fonctionne correctement
     corpus.show(n_docs=5, tri="123")
-    print("")
-    print("-----------------Manipulation sur le corpus-----------------")
-    print("")
+    print("\n-----------------Manipulation sur le corpus-----------------\n")
     # print(chaine_unique)
     print("Test de la fonction search")
     print(corpus.search("hypertrophy", chaine_unique)) # On recherche le mot hypertrophy dans notre corpus et on renvoie le passage(5 caractères à droite et à gauche)
@@ -537,7 +558,19 @@ def main():
     print("On voit qu'il y a un problème TermFrequency est différent de OccurencesTotales alors que les valeurs devraient être égales")
     
     print("Test de la matrice TF-IDF")
-    print(corpus.definir_mat_TFxIDF())
+    print(corpus.definir_mat_TFxIDF()) # retourne la matrice creuse, print les éntrées non nulles (DocumentxMot) et l'importance relative au corpus du mot'
+    # résultat proche de 0 -> pas important
+    # résultat proche de 1 -> important
+
+    print("\n-----------------Moteur de recherche-----------------\n")
+    # Demander à l'utilisatuer mot clef -> input puis faire une interface et changer la valeur
+
+    # transformer ces mots-clefs sous la forme d'un vecteur sur le vocabulaire précédement construit,
+
+    # Pour tester, on n'a choisi que des mots présent dans un seul document, on va tester si il n'y a que lui qui a une similarité supérieur à 0
+    mot_clefs = "interactive storytelling narratives"
+    moteur_recherche(mot_clefs, corpus)
+
 
 
     
