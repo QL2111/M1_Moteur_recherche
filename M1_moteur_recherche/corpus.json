@@ -1,6 +1,21 @@
 {
     "Nom": "Mon corpus",
     "id2aut": {
+        "Realistic_Role_5066": {
+            "name": "Realistic_Role_5066",
+            "ndoc": 1,
+            "production": [
+                {
+                    "titre": "Shoulder pain",
+                    "auteur": "Realistic_Role_5066",
+                    "date": "2024/01/08",
+                    "url": "https://www.reddit.com/r/Physiology/comments/191sadh/shoulder_pain/",
+                    "texte": "Hello, today I was doing smith machine incline chest press and on my 4th rep on the way down my shoulder sort of clicked twice and from then on I\u2019ve had a good 5/6 out of 10 pain from the side and back of my shoulder, anyone know what this could be?",
+                    "_Document__type": "Reddit",
+                    "nbCommentaire": "1"
+                }
+            ]
+        },
         "unusualCortex001": {
             "name": "unusualCortex001",
             "ndoc": 1,
@@ -101,21 +116,6 @@
                     "date": "2023/12/31",
                     "url": "https://www.reddit.com/r/Physiology/comments/18uu5ed/why_do_i_and_others_get_goosebumps_from_music/",
                     "texte": "There have been a handful of songs in my life that gave me chills. I\u2019ve heard other people express experiencing this too, so I know it\u2019s not just me. Why does it happen, and does it happen to everyone?   If it\u2019s relevant to the answer, here are a few songs that have elicited this response:  The Bradley Cooper\u2019s final orchestra scene in Maestro (the moment that prompted this post)  Whitney Houston\u2019s version of \u201cI Will Always Love You\u201d  Amber Riley singing \u201cAnd I\u2019m Telling You I\u2019m Not Going\u201d as Mercedes Jones in Glee (when she sang it in the classroom)",
-                    "_Document__type": "Reddit",
-                    "nbCommentaire": "2"
-                }
-            ]
-        },
-        "usmle-jiasindh": {
-            "name": "usmle-jiasindh",
-            "ndoc": 1,
-            "production": [
-                {
-                    "titre": "Need advice, Done BS physiology what Next",
-                    "auteur": "usmle-jiasindh",
-                    "date": "2023/12/30",
-                    "url": "https://www.reddit.com/r/Physiology/comments/18uibtb/need_advice_done_bs_physiology_what_next/",
-                    "texte": "Hi everyone   I have done BS physiology from Pakistan and not able to enter into the field thinking my career end here   Anyone suggest what should be my next step I can look for master degree any other suggestion thanks",
                     "_Document__type": "Reddit",
                     "nbCommentaire": "2"
                 }
@@ -274,6 +274,15 @@
     },
     "id2doc": {
         "0": {
+            "titre": "Shoulder pain",
+            "auteur": "Realistic_Role_5066",
+            "date": "2024/01/08",
+            "url": "https://www.reddit.com/r/Physiology/comments/191sadh/shoulder_pain/",
+            "texte": "Hello, today I was doing smith machine incline chest press and on my 4th rep on the way down my shoulder sort of clicked twice and from then on I\u2019ve had a good 5/6 out of 10 pain from the side and back of my shoulder, anyone know what this could be?",
+            "_Document__type": "Reddit",
+            "nbCommentaire": "1"
+        },
+        "1": {
             "titre": "Why valsalva increases murmur of MVP & HOCM?",
             "auteur": "unusualCortex001",
             "date": "2024/01/07",
@@ -282,7 +291,7 @@
             "_Document__type": "Reddit",
             "nbCommentaire": "1"
         },
-        "1": {
+        "2": {
             "titre": "Afterload and vasovagal syncope",
             "auteur": "Stiley34",
             "date": "2024/01/04",
@@ -291,7 +300,7 @@
             "_Document__type": "Reddit",
             "nbCommentaire": "2"
         },
-        "2": {
+        "3": {
             "titre": "Why is MY left side shoulder way higher and differently shaped than the right?",
             "auteur": "YourLocalBiker",
             "date": "2024/01/04",
@@ -300,7 +309,7 @@
             "_Document__type": "Reddit",
             "nbCommentaire": "9"
         },
-        "3": {
+        "4": {
             "titre": "Is my go to sitting position bad?",
             "auteur": "crisp-apple1",
             "date": "2024/01/03",
@@ -309,7 +318,7 @@
             "_Document__type": "Reddit",
             "nbCommentaire": "3"
         },
-        "4": {
+        "5": {
             "titre": "BRS Physiology 8th edition",
             "auteur": "3isa_7ayaty",
             "date": "2023/12/31",
@@ -318,7 +327,7 @@
             "_Document__type": "Reddit",
             "nbCommentaire": "1"
         },
-        "5": {
+        "6": {
             "titre": "Mitral valve stenosis vs. aortic valve stenosis",
             "auteur": "JayRay_77",
             "date": "2023/12/30",
@@ -327,21 +336,12 @@
             "_Document__type": "Reddit",
             "nbCommentaire": "4"
         },
-        "6": {
+        "7": {
             "titre": "Why do I (and others) get goosebumps from music?",
             "auteur": "babeymoon",
             "date": "2023/12/31",
             "url": "https://www.reddit.com/r/Physiology/comments/18uu5ed/why_do_i_and_others_get_goosebumps_from_music/",
             "texte": "There have been a handful of songs in my life that gave me chills. I\u2019ve heard other people express experiencing this too, so I know it\u2019s not just me. Why does it happen, and does it happen to everyone?   If it\u2019s relevant to the answer, here are a few songs that have elicited this response:  The Bradley Cooper\u2019s final orchestra scene in Maestro (the moment that prompted this post)  Whitney Houston\u2019s version of \u201cI Will Always Love You\u201d  Amber Riley singing \u201cAnd I\u2019m Telling You I\u2019m Not Going\u201d as Mercedes Jones in Glee (when she sang it in the classroom)",
-            "_Document__type": "Reddit",
-            "nbCommentaire": "2"
-        },
-        "7": {
-            "titre": "Need advice, Done BS physiology what Next",
-            "auteur": "usmle-jiasindh",
-            "date": "2023/12/30",
-            "url": "https://www.reddit.com/r/Physiology/comments/18uibtb/need_advice_done_bs_physiology_what_next/",
-            "texte": "Hi everyone   I have done BS physiology from Pakistan and not able to enter into the field thinking my career end here   Anyone suggest what should be my next step I can look for master degree any other suggestion thanks",
             "_Document__type": "Reddit",
             "nbCommentaire": "2"
         },

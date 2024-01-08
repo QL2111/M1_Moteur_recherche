@@ -38,6 +38,10 @@ from moteur_recherche import peuplement_auteur
 from moteur_recherche import load_json
 
 
+# On créer ses variables globales pour les tests(pour le corpus)
+id2doc = {}
+id2aut = {}
+
 def test_document_traitement_Reddit():
     dict_Reddit = traitement_Reddit()
     for doc in dict_Reddit.values():
@@ -64,6 +68,7 @@ def test_document_sauvegarde_to_df_ID_texte_source():
     assert len(df) > 1, "La taille est inférieur à 1, il y a erreur dans la sauvegarde"
 
 def test_document_traitement_csv():
+    global id2doc
     id2doc = traitement_document_csv()
     for doc in id2doc.values():
         assert isinstance(doc, Document), "On ne se retrouve pas avec un objet Document"
@@ -78,3 +83,24 @@ def test_peuplement_auteur():
 def test_load_json():
     corpus_json = load_json()
     assert corpus_json.nom == "Mon corpus", "Le nom du corpus n'est pas correct"
+
+# Test des fonctions de Corpus
+def test_corpus_search():
+    id2doc = traitement_document_csv()
+    id2aut = peuplement_auteur()
+    corpus = Corpus("Mon corpus", id2doc, id2aut)
+    chaine_unique_test = "blablabla test carotte, fraise test banane"
+    corpus_search = corpus.search("test", chaine_unique_test)
+    assert len(corpus_search) == 2, "Il devrait n'y avoir que 2 passages de test dans la chaine"
+    for passage in corpus_search:
+        assert "test" in passage, "Le mot test n'est pas dans le passage"
+
+"""
+id2doc = traitement_document_csv()
+id2aut = peuplement_auteur()
+corpus = Corpus("Mon corpus", id2doc, id2aut)
+chaine_unique_test = "blablabla test carotte, fraise test banane"
+corpus_search = corpus.search("test", chaine_unique_test)
+print(corpus_search)
+# print(corpus)
+"""

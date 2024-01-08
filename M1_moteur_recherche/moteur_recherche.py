@@ -298,8 +298,8 @@ def peuplement_auteur():
     # print(collection_author) # Liste d'instance Author
     
     # Maintenant qu'on a tout les auteurs uniques, on peut peupler les attributs de la classe Author
-    for doc in collection:
-        id2aut[doc.getAuteur()].add(doc)
+    for doc in id2doc.values():
+        id2aut[doc.getAuteur()].add(doc) 
     
     return id2aut
 
@@ -312,7 +312,7 @@ def statistiques_auteur(auteur):
 
     @param auteur (str): Nom de l'auteur.
     """
-
+    
     if auteur in id2aut:
         print(id2aut[auteur].get_statistiques())
     else:
@@ -398,11 +398,15 @@ def load_json():
     @return Corpus: Objet Corpus chargé.
     """
     with open('corpus.json') as json_file:
-        corpus = json.load(json_file)
-        # print(corpus.keys())
-        # print(corpus["Nom"])
-        # print(corpus["id2aut"])
-        return Corpus(corpus["Nom"], corpus["id2doc"], corpus["id2aut"])   # On crée notre corpus avec les données du json
+        corpus_json = json.load(json_file)
+        # print(corpus_json.keys())
+        # print(corpus_json["Nom"])
+        # print(corpus_json["id2aut"])
+
+        # On crée notre corpus avec les données du json
+        corpus = Corpus(corpus_json["Nom"], corpus_json["id2doc"], corpus_json["id2aut"])
+
+    return corpus   
 
 def main():
     """
@@ -453,8 +457,10 @@ def main():
     #########Gestion des Auteurs#########
     id2aut = peuplement_auteur()
     # print(id2aut)
+    print("")
+    print("---------------Traitement Auteur-----------------")
     statistiques_auteur("Dongrui Wu") # Plus tard remplacer par un input de l'utilisateur
-
+    print("")
     ##########Création du Corpus + Patrons de conception##########
     # Ici on peuple directement notre corpus avec nos dictionnaires en les passant dans le constructeur
     # mais pour la démonstration du Pattern Factory, on va donner un dictionnaire vide pour ne pas faire de doublons
@@ -485,11 +491,18 @@ def main():
     # On a des problèmes lorsqu'on souhaite convertir en df nos dictionnaires, on va donc les sauvegarder en JSON
     save_json(corpus)
     corpus = load_json()
-    print(type(corpus))
+    # print(type(corpus))
     # On vérifie que ça fonctionne correctement
-    # corpus.show(n_docs=5, tri="123")
-    
-        
+    print("-----------------Visualisation du corpus après sauvegarde en JSON-----------------")
+    print("")
+    corpus.show(n_docs=5, tri="123")
+    print("")
+    print("-----------------Manipulation sur le corpus-----------------")
+    print("")
+    # print(chaine_unique)
+    print("Test de la fonction search")
+    print(corpus.search("hypertrophy", chaine_unique)) # On recherche le mot hypertrophy dans notre corpus et on renvoie le passage(5 caractères à droite et à gauche)
+    print("")
 
     
     

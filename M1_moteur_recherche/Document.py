@@ -147,7 +147,7 @@ class RedditDocument(Document):
 
         @return: Chaîne de caractères représentant le document Reddit.
         """
-        return super().__str__() + "\n(Reddit)Nb Commentaire :" +str(self.nbCommentaire)
+        return super().__str__() + ", (Reddit)Nb Commentaire :" +str(self.nbCommentaire)
     
     def getType(self):
         """
@@ -198,7 +198,7 @@ class ArxivDocument(Document):
 
         @return: Chaîne de caractères représentant le document Arxiv.
         """
-        return super().__str__() + "\n(Arxiv)Liste co-auteurs :" + str(self.coAuteurs)
+        return super().__str__() + ", (Arxiv)Liste co-auteurs :" + str(self.coAuteurs)
 
     def getType(self):
         """
