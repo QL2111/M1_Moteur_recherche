@@ -1,3 +1,11 @@
+"""
+@file test.py
+@brief Fichier de test pour le moteur de recherche
+
+Dans ce fichier, nous allons tester les différentes fonctions du moteur de recherche nécessaire au bon fonctionnement.
+On vérifiera si les objets retournés sont bien ceux du type attendus et si les sauvegardes sont bien effectuées.
+"""
+
 # pytest -v test.py --html=pytest_report.html --self-contained-html
 # Installer pytest
 # pytest -v test.py
@@ -28,6 +36,7 @@ from moteur_recherche import sauvegarde_to_df_ID_texte_source
 from moteur_recherche import traitement_document_csv
 from moteur_recherche import peuplement_auteur
 from moteur_recherche import load_json
+
 
 def test_document_traitement_Reddit():
     dict_Reddit = traitement_Reddit()
@@ -65,3 +74,7 @@ def test_peuplement_auteur():
     for aut in id2aut.values():
         assert isinstance(aut, Author), "On ne se retrouve pas avec un objet Author"
     assert len(id2aut) > 1, "La taille est inférieur à 1, il y a erreur dans la sauvegarde"
+
+def test_load_json():
+    corpus_json = load_json()
+    assert corpus_json.nom == "Mon corpus", "Le nom du corpus n'est pas correct"
