@@ -81,7 +81,7 @@ def traitement_Reddit(client_id='90mRLOBN2nYhS45pOWpeGg', client_secret='Gu0rQUB
     @return dict: Dictionnaire des documents Reddit.
     """
     reddit = praw.Reddit(client_id = client_id, client_secret = client_secret, user_agent = user_agent)
-
+    docTestReddit = {}
     #client id 90mRLOBN2nYhS45pOWpeGg secret Gu0rQUBgA2Dup2kBWw1xBOcR7xOQww user_agent M1_TD3_WebScrapping
     try:
         # 10 meilleurs posts de la thématique choisie
@@ -110,11 +110,12 @@ def traitement_Reddit(client_id='90mRLOBN2nYhS45pOWpeGg', client_secret='Gu0rQUB
         # Création de nos classes RedditDocument qui héritent de Document
         doc_classe = RedditDocument(titre, auteur, date, url, text, nbCommentaire) 
         # peuplement de notre dictionnaire avec indiceClef comme clef
-        id2doc[indiceClef] = doc_classe   
+        id2doc[indiceClef] = doc_classe
+        docTestReddit[indiceClef] = doc_classe   
         collection.append(doc_classe)
-    
+
     # On retourne le dictionnaire pour effectuer des tests
-    return id2doc 
+    return docTestReddit 
 
 def traitement_Arxiv():
     """
@@ -411,6 +412,14 @@ def load_json():
     return corpus   
 
 def moteur_recherche(mot_clefs, corpus):
+    """
+    @fn moteur_recherche
+    @brief Moteur de recherche.
+
+
+    @param mot_clefs (str): Mots clés à rechercher.
+    @param corpus (Corpus): Corpus à utiliser.
+    """
     query_vector = np.zeros(len(corpus.vocab)) # vecteur de la taille du vocabulaire
 
     for mot_clef in mot_clefs.split(" "):

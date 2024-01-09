@@ -119,6 +119,11 @@ class Corpus():
         @return: Matrice de co-occurence Document(j) x Mot(i).
         """
         return self.mat_TF
+    
+    def get_freq(self):
+        if not self.freq:
+            self.definir_vocab()
+        return self.freq
 
 # =============== 2.8 : REPRESENTATION =============== # 
     # !!!!!!!!Correction de G. Poux-Médard, 2021-2022!!!!!!!!
@@ -206,10 +211,6 @@ class Corpus():
         return self.vocab
 
 
-    def get_freq(self):
-        if not self.freq:
-            self.definir_vocab()
-        return self.freq
     
     # return sparse matrix
     def definir_matrice(self):
@@ -235,6 +236,7 @@ class Corpus():
         # Conversion en matrice creuse
         self.mat_TF = scipy.sparse.csr_matrix(self.mat_TF)
         print(f"Dimension de la matrice : {self.mat_TF.shape}")
+        # print(type(self.mat_TF)) #scipy.sparse._csr.csr_matrix
         return self.mat_TF
     
 
