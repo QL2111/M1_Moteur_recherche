@@ -43,6 +43,8 @@ from Corpus import Corpus
 # TODO: Faire cohabiter Pickle et Singleton sinon on va transformer en df
 # TODO: Lorsqu'on passe le call API, on n'a pas encore fait la suppresion des textes trop petits, on va donc avoir des différences (notamment pour id2doc)
 # TODO: Lorsqu'on définit vocab, la fréquence de l'apparition du mot est différente entre definir_vocab()-> Counter() et calculer_stats_vocab() -> traitement sparse_matrix
+# TODO: Problème : lorsqu'on run les test, les fonctions appelées peuplent les variables globales(effectuer le traitement) ce qui fait qu'on se retrouve avec des doublons
+#       lorsqu'on run plusieurs fois le ficher test.py(!!!!IL FAUT DONC LE RUN QU'UNE SEULE FOIS, UNE FOIS moteur_recherche.py lancer!!!!)
 
 
 Textes = []   # docs pour stocker les textes(corps de texte)
@@ -114,6 +116,8 @@ def traitement_Reddit(client_id='90mRLOBN2nYhS45pOWpeGg', client_secret='Gu0rQUB
         docTestReddit[indiceClef] = doc_classe   
         collection.append(doc_classe)
 
+    print(f"taille de id2doc traitement Reddit {len(id2doc)}")
+
     # On retourne le dictionnaire pour effectuer des tests
     return docTestReddit 
 
@@ -180,6 +184,8 @@ def traitement_Arxiv():
         indiceClef += 1
         collection.append(doc_classe)
 
+
+    print(f"taille de id2doc traitement Reddit {len(id2doc)}")
     # On retourne le dictionnaire pour effectuer des tests
     return docTestArxiv
 
@@ -256,8 +262,10 @@ def traitement_document_csv():
         # peuplement de notre dictionnaire avec indiceClef comme clef
         id2doc[indiceClef] = doc_classe   #peuplement
         collection.append(doc_classe)
-
+    
     # On retourne le dictionnaire pour effectuer des tests
+    print(f"taille de id2doc load csv {len(id2doc)}")
+
     return id2doc
 
 def peuplement_auteur():
@@ -302,9 +310,7 @@ def peuplement_auteur():
     
     # Maintenant qu'on a tout les auteurs uniques, on peut peupler les attributs de la classe Author
     for doc in id2doc.values():
-        # On vérifie que le document n'est déjà présent
-        if doc not in id2aut[doc.getAuteur()].production:
-            id2aut[doc.getAuteur()].add(doc) 
+        id2aut[doc.getAuteur()].add(doc) 
     
     return id2aut
 
@@ -380,6 +386,7 @@ def save_json(corpus):
         json_aut[key] = value.__dict__
 
     json_doc = {}
+    print(f"taille de id2doc avant la sauvegarde {len(id2doc)}")
     for key, value in id2doc.items():
         json_doc[key] = value.__dict__
 
@@ -391,7 +398,7 @@ def save_json(corpus):
     # On sauvegarde en JSON
     # On a l'erreur TypeError: Object of type Document is not JSON serializable
     # On va créer une fonction pour convertir nos Document en dictionnaire pour que ça soit serializable
-    with open("corpus.json", "w+") as json_file:
+    with open("corpus.json", "w") as json_file:
         json.dump(corpus_data, json_file, default=convert_to_json_serializable, indent=4)
 
 
@@ -438,18 +445,29 @@ def moteur_recherche(mot_clefs, corpus):
     # indices des documents triés par ordre décroissant
     sorted_indices = similarites.argsort()[0][::-1]
 
+    resultat_test_moteur = []
     # trier les scores résultats et associé les meilleurs résultats.
     # On affiche les meilleurs résultats
     for index in sorted_indices[:3]:
         print(f"Document {index}: Similarité Cosinus = {similarites[0, index]}")
         print(corpus.id2doc[index])  
         print("\n")
+        resultat_test_moteur.append(similarites[0, index])
+    
+    return resultat_test_moteur
 
 def main():
     """
     @brief Fonction principale du programme.
     """
     global Titles, Authors, Dates, Urls, Textes, src, collection, df, nbCommentaires, global_coAuteurs
+    # On remet nos variabels globales à 0 pour éviter les erreurs de doublons(append à une liste globale qui n'est jamais remis à 0)
+    Textes = []   # docs pour stocker les textes(corps de texte)
+    src = [] # Reddit ou Arxiv (stock les sources)
+    Titles = [] # Liste des titres
+    Authors = [] # LIste des auteurs
+    Dates = [] # Liste des dates
+    Urls = [] # Liste des urls
 
     print("Moteur de recherche python")
 
@@ -559,7 +577,7 @@ def main():
     print("")
 
     print("Test sparse matrix")
-    # print(corpus.definir_matrice()) # retourne la matrice creuse, print les éntrées non nulles (DocumentxMot) et le nb d'occurence
+    print(corpus.definir_matrice()) # retourne la matrice creuse, print les éntrées non nulles (DocumentxMot) et le nb d'occurence
 
     # on ajoute les clefs valeurs nbTotalOccurenceCorpus et nbTotalOccurenceDoc dans le dictionnaire vocab
     corpus.calculer_stats_vocab() # definir_matrice est appelé dans cette fonction car on calcul le nombre d'occurence total du mot dans le corpus et le nombre de document le comportant
@@ -583,8 +601,7 @@ def main():
     mot_clefs = "interactive storytelling narratives"
     moteur_recherche(mot_clefs, corpus)
 
-
-
+    # print(len(Titles)) # Erreurs de doublons, on s'assure bien qu'on a le bon nombre de document, problèmes -> Lorsqu'on run les tests, celà modife nos variables dans moteur_recherche
     
 
 

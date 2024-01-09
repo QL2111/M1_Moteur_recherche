@@ -38,6 +38,8 @@ from moteur_recherche import traitement_document_csv
 from moteur_recherche import peuplement_auteur
 from moteur_recherche import load_json
 
+from moteur_recherche import moteur_recherche
+
 
 # On créer ses variables globales pour les tests(pour le Corpus)
 # Initialisation globale pour les tests
@@ -152,21 +154,31 @@ def test_definir_vocab():
     assert str(dict_vocab_test["and"].keys()) == "dict_keys(['ID', 'TermFrequency', 'DocumentFrequency'])"
     assert len(dict_vocab_test) > 1, "La taille est inférieur à 1, il y a erreur dans la sauvegarde"
 
+
 def test_definir_matrice():
-    # definir_matrice() a besoin de definir_vocab() pour fonctionner
-    sparse_matrix_test = corpus_test.getMat_TF()
+    sparse_matrix_test = corpus_test.definir_matrice()
     print(type(sparse_matrix_test))
+    print(sparse_matrix_test)
     assert isinstance(sparse_matrix_test, scipy.sparse._csr.csr_matrix), "On ne se retrouve pas avec une sparse matrix"
 
+def test_calculer_stats_vocab():
+    # Résultat attendu : dictionnaires avec les mots en clef et en valeur un dictionnaires avec ID, TermFrequency, DocumentFrequency, OccurencesTotales, DocumentsContenantMot
+    dict_vocab2_test = corpus_test.calculer_stats_vocab()
+    assert isinstance(dict_vocab2_test, dict), "On ne se retrouve pas avec un objet dict"
+    # On vérifie que les clefs sont bonnes
+    # print(dict_vocab2_test["and"].keys())
+    assert str(dict_vocab2_test["and"].keys()) == "dict_keys(['ID', 'TermFrequency', 'DocumentFrequency', 'OccurrencesTotales', 'DocumentsContenantMot'])"
+    assert len(dict_vocab2_test) > 1, "La taille est inférieur à 1, il y a erreur dans la sauvegarde"
+
+
+
+def test_definir_mat_TFxIDF():
+    test_TFxIDF = corpus_test.definir_mat_TFxIDF()
+    assert isinstance(test_TFxIDF, scipy.sparse._csr.csr_matrix), "On ne se retrouve pas avec une sparse matrix"
     
-
-"""
-
-
-
-# def test_calculer_stats_vocab():
-
-# def test_definir_mat_TFxIDF():
-    
-# def test_moteur_recherche(mot_clefs, corpus_test):
-"""
+def test_moteur_recherche(mot_clefs ="physiologie", corpus = corpus_test):
+    mot_clefs = "interactive storytelling narratives"
+    test_resultat_moteur = moteur_recherche(mot_clefs, corpus_test)
+    print(test_resultat_moteur)
+    for i in range(len(test_resultat_moteur) - 1):
+        assert test_resultat_moteur[i] >= test_resultat_moteur[i + 1], "La similarité n'est pas trié"

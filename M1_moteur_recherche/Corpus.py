@@ -121,6 +121,12 @@ class Corpus():
         return self.mat_TF
     
     def get_freq(self):
+        """
+        @fn get_freq
+        @brief Retourne le dictionnaire de fréquence
+
+        @return: Dictionnaire de mots
+        """
         if not self.freq:
             self.definir_vocab()
         return self.freq
@@ -135,21 +141,31 @@ class Corpus():
             docs = list(sorted(docs, key=lambda x: x.date))[:n_docs]
         print("\n".join(list(map(str, docs))))
 
-    """
-    @fn __repr__
-    @brief Affiche les documents du corpus
-
-    Une représentation plus digeste que celle de la méthode show()
     
-    @return str : la représentation du corpus
-    """
     def __repr__(self):
+        """
+        @fn __repr__
+        @brief Affiche les documents du corpus
+
+        Une représentation plus digeste que celle de la méthode show()
+        
+        @return str : la représentation du corpus
+        """
         docs = list(self.id2doc.values())
         docs = list(sorted(docs, key=lambda x: x.titre.lower()))
         return "\n".join(list(map(str, docs)))
 
     # regular expression
     def search(self, mot_clef, chaine_unique):
+        """
+        @fn search
+        @brief Recherche des occurrences d'un mot clé dans une chaîne de caractères unique.
+
+        @param mot_clef (str): Mot clé à rechercher.
+        @param chaine_unique (str): Chaîne de caractères unique dans laquelle effectuer la recherche.
+
+        @return: Liste des occurrences du mot clé avec un contexte de 5 caractères avant et après.
+        """
         p = re.compile(fr'\b{mot_clef}[a-zA-Z]*\b', re.IGNORECASE)
         res = p.finditer(chaine_unique)
         list_res = []
@@ -159,6 +175,17 @@ class Corpus():
         return list_res
 
     def concorder(self, mot_clef, chaine_unique, taille_contexte):
+        """
+        @fn concorder
+        @brief Recherche des occurrences d'un mot clé dans une chaîne de caractères unique
+        avec un contexte spécifié.
+
+        @param mot_clef (str): Mot clé à rechercher.
+        @param chaine_unique (str): Chaîne de caractères unique dans laquelle effectuer la recherche.
+        @param taille_contexte (int): Taille du contexte à inclure avant et après chaque occurrence.
+
+        @return: DataFrame avec les colonnes contexte_gauche, motif, contexte_droite.
+        """
         p = re.compile(fr'\b{mot_clef}[a-zA-Z]*\b', re.IGNORECASE)
         res = p.finditer(chaine_unique)
         liste_contexte_gauche = []
@@ -173,6 +200,17 @@ class Corpus():
         return df
 # Stats
     def nettoyer_texte(self, chaine_unique):
+        """
+        @fn nettoyer_texte
+        @brief Nettoie une chaîne de caractères en la convertissant en minuscules,
+        en remplaçant les retours à la ligne par des espaces, en supprimant les caractères
+        non alphabétiques, en remplaçant les chiffres par des espaces et en supprimant
+        les espaces multiples.
+
+        @param chaine_unique (str): Chaîne de caractères à nettoyer.
+
+        @return: Chaîne de caractères nettoyée.
+        """
         chaine_unique = chaine_unique.lower()
         # retour à la ligne
         chaine_unique = chaine_unique.replace('\n', ' ')
@@ -187,6 +225,12 @@ class Corpus():
         return chaine_unique
     
     def definir_vocab(self):
+        """
+        @fn definir_vocab
+        @brief Définit le vocabulaire du corpus, sa fréquence et le vocabulaire traité.
+
+        @return: Dictionnaire représentant le vocabulaire traité.
+        """
         freq_counter = Counter()  # compteur de TermFrequency
         doc_counter = Counter()  # compteur de document TermFrequency
 
@@ -214,6 +258,12 @@ class Corpus():
     
     # return sparse matrix
     def definir_matrice(self):
+        """
+        @fn definir_matrice
+        @brief Définit la matrice de co-occurrence Document(j) x Mot(i) du corpus.
+
+        @return: Matrice de co-occurrence Document(j) x Mot(i).
+        """
         # matrice de co-occurence Document(j) x Mot(i)
         # on parcourt chaque document
         # peuplement du vocabulaire
@@ -223,6 +273,7 @@ class Corpus():
         # print(self.__vocabulaire)
         # print(self.ndoc, len(self.__vocabulaire)) #20x918
         # print(self.id2doc.values())
+        print()
         self.mat_TF = np.zeros((self.ndoc, len(self.__vocabulaire)))
         for doc in self.id2doc.values():
             # on parcourt chaque mot du document
@@ -232,7 +283,8 @@ class Corpus():
                     if mot == mot_vocab:
                         # on incrémente la valeur de la matrice
                         self.mat_TF[indice, self.vocab[mot]['ID']] += 1
-            indice += 1
+            if indice < self.ndoc - 1:  # Pour corriger l'erreur index out of bound lorsqu'on appelle depuis le fichier test.py
+                indice += 1
         # Conversion en matrice creuse
         self.mat_TF = scipy.sparse.csr_matrix(self.mat_TF)
         print(f"Dimension de la matrice : {self.mat_TF.shape}")
@@ -242,6 +294,13 @@ class Corpus():
 
     # on ajoute les clefs valeurs nbTotalOccurenceCorpus et nbTotalOccurenceDoc dans le dictionnaire vocab
     def calculer_stats_vocab(self):
+        """
+        @fn calculer_stats_vocab
+        @brief Calcule les statistiques sur le vocabulaire du corpus.
+
+        @return: Dictionnaire représentant le vocabulaire avec les statistiques ajoutées.
+        """
+        self.mat_TF = None
         if not self.mat_TF:
             self.definir_matrice()
 
@@ -263,6 +322,19 @@ class Corpus():
     # résultat proche de 0 -> pas important
     # résultat proche de 1 -> important
     def definir_mat_TFxIDF(self):
+        """
+        @fn definir_mat_TFxIDF
+        @brief Calcule et retourne la matrice TF-IDF du corpus.
+
+        La matrice TF-IDF (Term Frequency-Inverse Document Frequency) est une mesure statistique
+        qui évalue l'importance d'un mot dans un document par rapport à l'ensemble du corpus.
+
+        Si la matrice TF n'est pas encore définie, cette fonction la calcule en utilisant la méthode
+        definir_matrice(). Ensuite, elle applique la transformation TF-IDF en utilisant la classe
+        TfidfTransformer de scikit-learn.
+
+        @return: Matrice TF-IDF du corpus au format scipy.sparse.csr_matrix.
+        """
         if not self.mat_TFxIDF:
             self.definir_matrice()
 
@@ -270,5 +342,5 @@ class Corpus():
         # Utilisation de la classe TfidfTransformer de scikit-learn
         transformer = TfidfTransformer()
         self.mat_TFxIDF = transformer.fit_transform(self.mat_TF)
-
+        # print(type(self.mat_TFxIDF)) #<class 'scipy.sparse._csr.csr_matrix'>
         return self.mat_TFxIDF
