@@ -153,11 +153,12 @@ def test_definir_vocab():
     assert len(dict_vocab_test) > 1, "La taille est inférieur à 1, il y a erreur dans la sauvegarde"
 
 def test_definir_matrice():
-    sparse_matrix_test = corpus_test.definir_matrice()
+    # definir_matrice() a besoin de definir_vocab() pour fonctionner
+    sparse_matrix_test = corpus_test.getMat_TF()
     print(type(sparse_matrix_test))
     assert isinstance(sparse_matrix_test, scipy.sparse._csr.csr_matrix), "On ne se retrouve pas avec une sparse matrix"
 
-
+    
 
 """
 

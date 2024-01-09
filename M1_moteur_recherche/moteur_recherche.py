@@ -302,7 +302,9 @@ def peuplement_auteur():
     
     # Maintenant qu'on a tout les auteurs uniques, on peut peupler les attributs de la classe Author
     for doc in id2doc.values():
-        id2aut[doc.getAuteur()].add(doc) 
+        # On vérifie que le document n'est déjà présent
+        if doc not in id2aut[doc.getAuteur()].production:
+            id2aut[doc.getAuteur()].add(doc) 
     
     return id2aut
 
@@ -389,7 +391,7 @@ def save_json(corpus):
     # On sauvegarde en JSON
     # On a l'erreur TypeError: Object of type Document is not JSON serializable
     # On va créer une fonction pour convertir nos Document en dictionnaire pour que ça soit serializable
-    with open("corpus.json", "w") as json_file:
+    with open("corpus.json", "w+") as json_file:
         json.dump(corpus_data, json_file, default=convert_to_json_serializable, indent=4)
 
 
@@ -524,6 +526,7 @@ def main():
     
 
     # On a des problèmes lorsqu'on souhaite convertir en df nos dictionnaires, on va donc les sauvegarder en JSON
+    
     save_json(corpus)
     corpus = load_json()
     # print(type(corpus))
