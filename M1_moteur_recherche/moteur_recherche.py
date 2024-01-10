@@ -36,17 +36,15 @@ from Corpus import Corpus
 
 
 # TODO: Faire un fichier de configuration pour les identifiants reddit et praw
-# TODO: Dans la requete arvix/reddit, créer une variable pour choisir la thématique au lieu d'écire en dur
-# TODO: Faire un try pour voir si on peut lire le fichier out sinon on fait une requête
-# TODO: Faire une bonne fonction de nettoyage de texte et l'incorporer dans le traitement reddit et arvix
-# TODO: Faire une interface pour que l'utilisateur choisisse le nb de fichier Reddit et Arvix
+# TODO: Faire une bonne fonction de nettoyage de texte(enlever les stops words) et l'incorporer dans le traitement reddit et arvix
 # TODO: Faire une interface pour que l'utilisateur choisisse le nom de l'auteur pour les statistiques(aussi afficher les auteurs existants)
 # TODO: Utilité de certaines variables globales ? (collection, collection_author)
-# TODO: Faire cohabiter Pickle et Singleton sinon on va transformer en df
+# TODO: Faire cohabiter Pickle et Singleton sinon on va transformer en JSON
 # TODO: Lorsqu'on passe le call API, on n'a pas encore fait la suppresion des textes trop petits, on va donc avoir des différences (notamment pour id2doc)
 # TODO: Lorsqu'on définit vocab, la fréquence de l'apparition du mot est différente entre definir_vocab()-> Counter() et calculer_stats_vocab() -> traitement sparse_matrix
 # TODO: Problème : lorsqu'on run les test, les fonctions appelées peuplent les variables globales(effectuer le traitement) ce qui fait qu'on se retrouve avec des doublons
 #       lorsqu'on run plusieurs fois le ficher test.py(!!!!IL FAUT DONC LE RUN QU'UNE SEULE FOIS, UNE FOIS moteur_recherche.py lancer!!!!)
+# TODO: Pouvoir relancer un appel API si la thématique ou l'auteur change
 
 
 Textes = []   # docs pour stocker les textes(corps de texte)
@@ -61,15 +59,16 @@ collection_author = [] # Liste d'instance Author
 nbCommentaires = [] # Liste des nombres de commentaires pour Reddit
 global_coAuteurs = [] # Liste des co-auteurs pour Arvix
 
-nbDocumentReddit = 10 # Faire une interface pour que l'utilisateur choisisse 
-
 id2aut ={} # dictionnaire avec les noms d'auteurs comme clefs et les instances Author en valeurs
 id2doc = {} # dictionnarie avec les indices comme clefs et les document en valeurs
 indiceClef = 0 # indice pour notre dictionnarie id2doc (on fait une variable globale et non un enumerate car on fait une boucle pour chaque source)
 
 nbDocumentAutheur = 0
 
-def traitement_Reddit(client_id='90mRLOBN2nYhS45pOWpeGg', client_secret='Gu0rQUBgA2Dup2kBWw1xBOcR7xOQww', user_agent='M1_TD3_WebScrapping'):
+prev_thematique, prev_mot_clefs = "", "" # On initialise les variables pour vérifier si la thématique ou les mots clefs ont changé
+
+
+def traitement_Reddit(nbDocumentReddit =10, thematique="physiology", client_id='90mRLOBN2nYhS45pOWpeGg', client_secret='Gu0rQUBgA2Dup2kBWw1xBOcR7xOQww', user_agent='M1_TD3_WebScrapping'):
     """
     @fn traitement_Reddit
     @brief Effectue le traitement des documents provenant de Reddit.
@@ -89,7 +88,7 @@ def traitement_Reddit(client_id='90mRLOBN2nYhS45pOWpeGg', client_secret='Gu0rQUB
     #client id 90mRLOBN2nYhS45pOWpeGg secret Gu0rQUBgA2Dup2kBWw1xBOcR7xOQww user_agent M1_TD3_WebScrapping
     try:
         # 10 meilleurs posts de la thématique choisie
-        hot_posts = reddit.subreddit('physiology').hot(limit=nbDocumentReddit)
+        hot_posts = reddit.subreddit(thematique).hot(limit=nbDocumentReddit)
         print("Connexion Reddit réussie")
     except Exception as e:
         print("Connexion Reddit échouer", str(e))
@@ -123,7 +122,7 @@ def traitement_Reddit(client_id='90mRLOBN2nYhS45pOWpeGg', client_secret='Gu0rQUB
     # On retourne le dictionnaire pour effectuer des tests
     return docTestReddit 
 
-def traitement_Arxiv():
+def traitement_Arxiv(nbDocumentReddit = 10, nbDocumentArvix = 10, thematique="physiology"):
     """
     @fn traitement_Arxiv
     @brief Effectue le traitement des documents provenant d'Arxiv.
@@ -137,7 +136,8 @@ def traitement_Arxiv():
 
     @return dict: Dictionnaire des documents Arxiv.
     """
-    url = 'http://export.arxiv.org/api/query?search_query=all:physiology&start=0&max_results=10'
+    nbDocumentArvix = str(nbDocumentArvix)
+    url = f'http://export.arxiv.org/api/query?search_query=all:{thematique}&start=0&max_results={nbDocumentArvix}'
     indiceClef = nbDocumentReddit # On commence à l'indice nbDocumentReddit car on a déjà nbDocumentReddit dans notre dictionnaire
     docTestArxiv = {}
     try:
@@ -187,7 +187,7 @@ def traitement_Arxiv():
         collection.append(doc_classe)
 
 
-    # print(f"taille de id2doc traitement Reddit {len(id2doc)}")
+    print(f"taille de id2doc traitement Reddit {len(id2doc)}")
     # On retourne le dictionnaire pour effectuer des tests
     return docTestArxiv
 
@@ -458,11 +458,11 @@ def moteur_recherche(mot_clefs, corpus):
     
     return resultat_test_moteur
 
-def main():
+def main(nbDocumentReddit = 10, nbDocumentArvix= 10, thematique="physiology", mot_clefs = 'interactive storytelling narratives'):
     """
     @brief Fonction principale du programme.
     """
-    global Titles, Authors, Dates, Urls, Textes, src, collection, df, nbCommentaires, global_coAuteurs
+    global Titles, Authors, Dates, Urls, Textes, src, collection, df, nbCommentaires, global_coAuteurs, id2doc, id2aut, indiceClef, nbDocumentAutheur, prev_thematique, prev_mot_clefs
     # On remet nos variabels globales à 0 pour éviter les erreurs de doublons(append à une liste globale qui n'est jamais remis à 0)
     Textes = []   # docs pour stocker les textes(corps de texte)
     src = [] # Reddit ou Arxiv (stock les sources)
@@ -470,11 +470,28 @@ def main():
     Authors = [] # LIste des auteurs
     Dates = [] # Liste des dates
     Urls = [] # Liste des urls
+    collection = [] # Liste d'instance Document
+    collection_author = [] # Liste d'instance Author
 
+    nbCommentaires = [] # Liste des nombres de commentaires pour Reddit
+    global_coAuteurs = [] # Liste des co-auteurs pour Arvix
+
+    id2aut ={} # dictionnaire avec les noms d'auteurs comme clefs et les instances Author en valeurs
+    id2doc = {} # dictionnarie avec les indices comme clefs et les document en valeurs
+    indiceClef = 0 # indice pour notre dictionnarie id2doc (on fait une variable globale et non un enumerate car on fait une boucle pour chaque source)
+
+    nbDocumentAutheur = 0
     print("Moteur de recherche python")
+
 
     #########Chargement des données#########
     try:
+        # On vérifie si la thématique ou les mot clefs ont changé -> Problème, chaque appel n'enregistre pas les paramètres mais les remets à 0, donc on lève toujours une erreur
+        # Si on commente les 3 lignes suivantes, la lecture du csv marche comme prévu
+        if thematique != prev_thematique or mot_clefs != prev_mot_clefs: #Si c'est bon on continue le traitement et on lit le csv
+            print("On a changé de thématique ou de mot clefs, on va donc refaire les requêtes API")
+            raise Exception("Changement de thématique ou de mot_clefs détecté") 
+        
         df = pd.read_csv('df_main.csv', sep="\t", index_col=0) # index_col=0 pour ne pas avoir une colonne index en plus car on utilise ID
         print("Lecture du csv réussie")
         #########Création de nos document #########
@@ -485,18 +502,22 @@ def main():
         #########Cas où on n'a pas le csv contenant les données#########
         print("On a pas les fichiers sauvegardées en local, on va faire les requêtes API", str(e))
         # -----------------Traitement Reddit------------------
-        traitement_Reddit()
+        traitement_Reddit(nbDocumentReddit, thematique)
         # -----------------Traitement Arxiv-----------------
-        traitement_Arxiv()
+        traitement_Arxiv(nbDocumentReddit, nbDocumentArvix, thematique)
         # print(id2doc) # On vérifie notre dictionnaire
         #########Sauvegarde des données#########
         df = sauvegarde_to_df()
         sauvegarde_to_df_ID_texte_source()
 
+        # On enregistre la thématique et les mots clefs pour vérifier si ils ont changé
+        prev_thematique = thematique
+        prev_mot_clefs = mot_clefs
+
     #########Premières Manipulations#########
         
     # On affiche le nombre de documents après le traitement
-    print(f"Nombre de documents après traitement : {len(collection)} ")
+    # print(f"Nombre de documents après traitement : {len(collection)} ")
     for texte in df["Texte"]:
         # print(type(texte))
         nbMots = str(texte).split(" ")
@@ -558,10 +579,10 @@ def main():
     print("\n-----------------Manipulation sur le corpus-----------------\n")
     # print(chaine_unique)
     print("Test de la fonction search")
-    print(corpus.search("hypertrophy", chaine_unique)) # On recherche le mot hypertrophy dans notre corpus et on renvoie le passage(5 caractères à droite et à gauche)
+    print(corpus.search(thematique, chaine_unique)) # On notre thematique pour s'assurer du résultat dans notre corpus on renvoie le passage(5 caractères à droite et à gauche)
     print("")
     print("Test de la fonction concorder")
-    print(corpus.concorder("hypertrophy", chaine_unique, 5)) # On recherche le mot hypertrophy dans notre corpus et on renvoie le passage(5 caractères à droite et à gauche)
+    print(corpus.concorder(thematique, chaine_unique, 5)) # On notre thematique pour s'assurer du résultat dans notre corpus on renvoie le passage(5 caractères à droite et à gauche)
     print("")
 
     print("Test nettoyer texte")
@@ -600,9 +621,9 @@ def main():
     # transformer ces mots-clefs sous la forme d'un vecteur sur le vocabulaire précédement construit,
 
     # Pour tester, on n'a choisi que des mots présent dans un seul document, on va tester si il n'y a que lui qui a une similarité supérieur à 0
-    mot_clefs = "interactive storytelling narratives"
+    
     moteur_recherche(mot_clefs, corpus)
-
+    # print(nbDocumentArvix) On vérifie que les paramètres ont bien été pris en compte
     # print(len(Titles)) # Erreurs de doublons, on s'assure bien qu'on a le bon nombre de document, problèmes -> Lorsqu'on run les tests, celà modife nos variables dans moteur_recherche
     
 

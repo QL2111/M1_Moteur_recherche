@@ -335,8 +335,7 @@ class Corpus():
 
         @return: Matrice TF-IDF du corpus au format scipy.sparse.csr_matrix.
         """
-        if not self.mat_TFxIDF:
-            self.definir_matrice()
+        self.definir_matrice()
 
         # print(type(self.mat_TF))
         # Utilisation de la classe TfidfTransformer de scikit-learn
