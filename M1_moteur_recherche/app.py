@@ -32,6 +32,8 @@ fig_reddit = px.scatter(df_reddit, x='date', y='nbCommentaire', color='auteur', 
 
 # Créer une figure pour la visualisation des documents Arvix
 fig_arvix = px.scatter(df_arvix, x='date', y=df_arvix['coAuteurs'].apply(len), color='auteur', title='Visualisation des documents Arvix', hover_data=['titre'])
+fig_arvix.update_layout(yaxis_title='Nombre de coauteurs') # On applique le label
+
 # Créer une figure pour la visualisation du corpus
 fig_corpus = px.histogram(df_documents, x='date', title='Visualisation du corpus')
 
@@ -64,24 +66,19 @@ app.layout = html.Div(style={'fontFamily': 'Arial, sans-serif'}, children=[
         dcc.Graph(figure=fig_types, id='graph-types'),
     ], style={'marginBottom': '30px'}),
     
-    html.Div(children=[
-        html.Label("Titre du document :", style={'fontSize': '18px'}),
-        dcc.Input(id='titre-input', type='text', value='', placeholder='Entrez le titre', style={'width': '100%', 'fontSize': '16px'}),
-        html.Button('Afficher le texte correspondant', id='text-button', n_clicks=0, style={'marginTop': '10px', 'fontSize': '16px'}),
-        html.Div(id='text-output', style={'marginTop': '10px', 'fontSize': '16px'}),
-    ], style={'marginBottom': '30px'}),
     
     html.Div(children=[
-        html.Label("Voir les titres des textes du corpus :", style={'fontSize': '18px'}),
-        dcc.Dropdown(
-            id='corpus-titres-dropdown',
-            options=[{'label': titre, 'value': titre} for titre in df_documents['titre']],
-            multi=True,
-            value=df_documents['titre'].values,
-            style={'width': '100%', 'fontSize': '16px'}
-        ),
-        dcc.Graph(id='corpus-titres-graph'),
-    ]),
+    html.Label("Voir les titres des textes du corpus :", style={'fontSize': '18px'}),
+    dcc.Dropdown(
+        id='corpus-titres-dropdown',
+        options=[{'label': titre, 'value': titre} for titre in df_documents['titre']],
+        multi=False,  # Changer à False pour permettre la sélection d'un seul titre à la fois
+        value=df_documents['titre'].values[0],  # Valeur par défaut (le premier titre)
+        style={'width': '100%', 'fontSize': '16px'}
+    ),
+    html.Button('Afficher le texte correspondant', id='text-button', n_clicks=0, style={'marginTop': '10px', 'fontSize': '16px'}),
+    html.Div(id='text-output', style={'marginTop': '10px', 'fontSize': '16px'}),
+    ], style={'marginBottom': '30px'}),
     
     html.Div(children=[
         html.H2("Exploration des Auteurs", style={'textAlign': 'center', 'color': '#333', 'marginTop': '50px'}),
@@ -108,7 +105,7 @@ app.layout = html.Div(style={'fontFamily': 'Arial, sans-serif'}, children=[
             ], style={'marginTop': '20px', 'marginBottom': '2rem'}
             ),
             html.Div(children=[
-                html.Label("Les co-auteurs de l'auteur :", style={'fontSize': '18px'}),
+                html.Label("Les co-auteurs de l'auteur choisi :", style={'fontSize': '18px'}),
                 html.Div(id='coauteurs-auteur-output', style={'fontSize': '16px'}),
             ], style={'marginTop': '20px', 'marginBottom': '2rem'}
             ),
@@ -117,11 +114,11 @@ app.layout = html.Div(style={'fontFamily': 'Arial, sans-serif'}, children=[
     ]),
 ])
 
-# Callback pour afficher le texte correspondant au titre entré
+# Callback pour afficher le texte correspondant au titre sélectionné
 @app.callback(
     Output('text-output', 'children'),
     [Input('text-button', 'n_clicks')],
-    [dash.dependencies.State('titre-input', 'value')]
+    [dash.dependencies.State('corpus-titres-dropdown', 'value')]
 )
 def display_text(n_clicks, titre):
     if n_clicks > 0:
@@ -130,17 +127,6 @@ def display_text(n_clicks, titre):
             return selected_doc.iloc[0]['texte']
         else:
             return "Aucun document trouvé avec ce titre."
-
-# Callback pour mettre à jour le graphique des titres du corpus
-@app.callback(
-    Output('corpus-titres-graph', 'figure'),
-    [Input('corpus-titres-dropdown', 'value')]
-)
-def update_corpus_titres_graph(selected_titres):
-    filtered_df = df_documents[df_documents['titre'].isin(selected_titres)]
-    fig = px.bar(filtered_df['nbCommentaire'], x=filtered_df['titre'], y=filtered_df['nbCommentaire'],
-                 title='Visualisation des titres du corpus', labels={'y': 'Nombre de commentaires'})
-    return fig
 
 # Callback pour afficher le titre du document produit par l'auteur sélectionné
 @app.callback(
