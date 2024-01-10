@@ -28,8 +28,17 @@ def nbarticleArvix_widget():
 def mot_clefs_widget():
     Mot_clefs = widgets.Text(
         value='',
-        placeholder='nteractive storytelling narratives',
+        placeholder='interactive storytelling narratives',
         description='Mot cléfs :',
         disabled=False
     )
     return Mot_clefs
+
+def nom_auteur_widget():
+    nom_auteur = widgets.Text(
+        value='',
+        placeholder='Dongrui Wu',
+        description='Nom auteur pour les statistiques :',
+        disabled=False
+    )
+    return nom_auteur

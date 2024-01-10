@@ -68,7 +68,7 @@ class Author:
         for doc in self.production:
             taille_moyenne += len(doc.texte)
         taille_moyenne = taille_moyenne / self.ndoc
-        return(f"L'auteur {self.name} a {str(self.ndoc)} documents, ses documents ont en moyenne une taille de : {taille_moyenne}" )
+        return(f"L'auteur {self.name} a {str(self.ndoc)} documents, ses documents ont en moyenne une taille de : {taille_moyenne} mots" )
     
         
 

@@ -256,6 +256,7 @@ def traitement_document_csv():
     # print(nbCommentaires)
 
     # On peuple notre dictionnaire id2doc avec les données de la df
+    print("Peuplement avec document factory")
     for indiceClef, texte in enumerate(Textes):
         if src[indiceClef] == "Reddit":
             doc_classe = DocumentFactory.factory("Reddit", RedditDocument(Titles[indiceClef], Authors[indiceClef], Dates[indiceClef], Urls[indiceClef], texte, nbCommentaires[indiceClef]))
@@ -400,8 +401,12 @@ def save_json(corpus):
     # On sauvegarde en JSON
     # On a l'erreur TypeError: Object of type Document is not JSON serializable
     # On va créer une fonction pour convertir nos Document en dictionnaire pour que ça soit serializable
-    with open("corpus.json", "w") as json_file:
-        json.dump(corpus_data, json_file, default=convert_to_json_serializable, indent=4)
+    try:
+        with open("corpus.json", "w") as json_file:
+            json.dump(corpus_data, json_file, default=convert_to_json_serializable, indent=4)
+        print("Sauvegarde en fichier json réussie")
+    except Exception as e:
+        print("Erreur lors de la sauvegarde en json", str(e))
 
 
 def load_json():
@@ -411,14 +416,18 @@ def load_json():
 
     @return Corpus: Objet Corpus chargé.
     """
-    with open('corpus.json') as json_file:
-        corpus_json = json.load(json_file)
-        # print(corpus_json.keys())
-        # print(corpus_json["Nom"])
-        # print(corpus_json["id2aut"])
+    try:
+        with open('corpus.json') as json_file:
+            corpus_json = json.load(json_file)
+            # print(corpus_json.keys())
+            # print(corpus_json["Nom"])
+            # print(corpus_json["id2aut"])
 
-        # On crée notre corpus avec les données du json
-        corpus = Corpus(corpus_json["Nom"], corpus_json["id2doc"], corpus_json["id2aut"])
+            # On crée notre corpus avec les données du json
+            corpus = Corpus(corpus_json["Nom"], corpus_json["id2doc"], corpus_json["id2aut"])
+            print("Chargement du corpus json réussi")
+    except Exception as e:
+        print("Erreur lors du chargement du corpus", str(e))
 
     return corpus   
 
@@ -458,7 +467,7 @@ def moteur_recherche(mot_clefs, corpus):
     
     return resultat_test_moteur
 
-def main(nbDocumentReddit = 10, nbDocumentArvix= 10, thematique="physiology", mot_clefs = 'interactive storytelling narratives'):
+def main(nbDocumentReddit = 10, nbDocumentArvix= 10, thematique="physiology", mot_clefs = 'interactive storytelling narratives', nomAuteurStatistique = "Dongrui Wu"):
     """
     @brief Fonction principale du programme.
     """
@@ -514,18 +523,19 @@ def main(nbDocumentReddit = 10, nbDocumentArvix= 10, thematique="physiology", mo
         prev_thematique = thematique
         prev_mot_clefs = mot_clefs
 
-    #########Premières Manipulations#########
-        
+
+    print("---------------Premières Manipulations-----------------")
     # On affiche le nombre de documents après le traitement
-    # print(f"Nombre de documents après traitement : {len(collection)} ")
-    for texte in df["Texte"]:
+    print(f"Nombre de documents après traitement : {len(collection)} ")
+    for texte, i in enumerate(df["Texte"]):
         # print(type(texte))
+        print(f"\nPour le document {i} : ")
         nbMots = str(texte).split(" ")
         nbPhrases = str(texte).split(".")
-        # print(f"Il y a {len(nbMots)} mots pour ce texte")
-        # print(f"Il y a  {len(nbPhrases)} phrases pour ce texte")
+        print(f"Il y a {len(nbMots)} mots pour ce texte")
+        print(f"Il y a  {len(nbPhrases)} phrases pour ce texte")
     
-    #print(f"Nb document :{df.shape[0]}" )
+
     chaine_unique = " ".join(df["Texte"])
     # print(chaine_unique)
 
@@ -537,19 +547,24 @@ def main(nbDocumentReddit = 10, nbDocumentArvix= 10, thematique="physiology", mo
     # print(id2aut)
     print("")
     print("---------------Traitement Auteur-----------------")
-    statistiques_auteur("Dongrui Wu") # Plus tard remplacer par un input de l'utilisateur
+    print("Quelques informations sur un auteur spécifique")
+    statistiques_auteur(nomAuteurStatistique) # Plus tard remplacer par un input de l'utilisateur
     print("")
-    ##########Création du Corpus + Patrons de conception##########
+    
+    print("---------------Création Corpus + patron de conception-----------------")
     # D'habitude on aurait peupler directement notre corpus avec nos dictionnaires en les passant dans le constructeur
     # Pour la démonstration du Pattern Factory, on va donner un dictionnaire vide pour ne pas faire de doublons
     corpus = Corpus("Mon corpus", id2doc = {}, id2aut = id2aut)
 
     # Test Singleton
-    # corpus2 = Corpus("Mon corpus 2", id2doc, id2aut)
-    # print(corpus2.nom) # Retourne Mon corpus, car on ne créer qu'un seul unique corpus(singleton, on revoit instance[0] -l'original)
+    print("Test Singleton")
+    corpus2 = Corpus("Mon corpus 2", id2doc, id2aut)
+    # Retourne Mon corpus, 
+    print(f"On a créer corpus2 avec comme nom : Mon corpus 2, mais si on affiche son nom on obtient : {corpus2.nom} car on ne créer qu'un seul unique corpus(singleton, on revoit instance[0] -l'original)") 
 
     ##########Démonstration patron de conception Factory##########
     # ajout des documents dans le corpus un à un
+    print("Peuplement avec DocumentFactory")
     for i, doc in enumerate(collection):
         corpus.add(DocumentFactory.factory(src[i], doc))
     

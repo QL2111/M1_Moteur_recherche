@@ -273,7 +273,6 @@ class Corpus():
         # print(self.__vocabulaire)
         # print(self.ndoc, len(self.__vocabulaire)) #20x918
         # print(self.id2doc.values())
-        print()
         self.mat_TF = np.zeros((self.ndoc, len(self.__vocabulaire)))
         for doc in self.id2doc.values():
             # on parcourt chaque mot du document
