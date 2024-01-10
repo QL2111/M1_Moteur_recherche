@@ -33,6 +33,8 @@ from Document import DocumentFactory
 from Corpus import Corpus
 
 
+
+
 # TODO: Faire un fichier de configuration pour les identifiants reddit et praw
 # TODO: Dans la requete arvix/reddit, créer une variable pour choisir la thématique au lieu d'écire en dur
 # TODO: Faire un try pour voir si on peut lire le fichier out sinon on fait une requête
@@ -116,7 +118,7 @@ def traitement_Reddit(client_id='90mRLOBN2nYhS45pOWpeGg', client_secret='Gu0rQUB
         docTestReddit[indiceClef] = doc_classe   
         collection.append(doc_classe)
 
-    print(f"taille de id2doc traitement Reddit {len(id2doc)}")
+    # print(f"taille de id2doc traitement Reddit {len(id2doc)}")
 
     # On retourne le dictionnaire pour effectuer des tests
     return docTestReddit 
@@ -185,7 +187,7 @@ def traitement_Arxiv():
         collection.append(doc_classe)
 
 
-    print(f"taille de id2doc traitement Reddit {len(id2doc)}")
+    # print(f"taille de id2doc traitement Reddit {len(id2doc)}")
     # On retourne le dictionnaire pour effectuer des tests
     return docTestArxiv
 
@@ -264,7 +266,7 @@ def traitement_document_csv():
         collection.append(doc_classe)
     
     # On retourne le dictionnaire pour effectuer des tests
-    print(f"taille de id2doc load csv {len(id2doc)}")
+    # print(f"taille de id2doc load csv {len(id2doc)}")
 
     return id2doc
 
@@ -622,5 +624,7 @@ if __name__ == '__main__':
     # Corpus, function show, Correction de G. Poux-Médard, 2021-2022
     # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.from_dict.html
     # https://docs.python.org/3/library/json.html
+    # https://stackoverflow.com/questions/23111990/pandas-dataframe-stored-list-as-string-how-to-convert-back-to-list
     # Doxygen
     # !!!!!Utilisation de chat GPT pour la documentation doxygen!!!!! (Les descriptions en dehors de @brief ont été écris à la main)
+

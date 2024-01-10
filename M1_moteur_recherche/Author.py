@@ -38,8 +38,8 @@ class Author:
         """
         # la ligne de code -> if doc in self.production ne marche pas, on va donc contourner en utilisant les titres
         listes_titres_production = [doc.getTitre() for doc in self.production]
-        print(listes_titres_production)
-        print(doc.getTitre())
+        # print(listes_titres_production)
+        # print(doc.getTitre())
         if doc.getTitre() not in listes_titres_production:
             # print("j'ai été ajouté")
             self.ndoc += 1
