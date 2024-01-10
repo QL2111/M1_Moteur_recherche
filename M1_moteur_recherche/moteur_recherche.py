@@ -45,6 +45,7 @@ from Corpus import Corpus
 # TODO: Problème : lorsqu'on run les test, les fonctions appelées peuplent les variables globales(effectuer le traitement) ce qui fait qu'on se retrouve avec des doublons
 #       lorsqu'on run plusieurs fois le ficher test.py(!!!!IL FAUT DONC LE RUN QU'UNE SEULE FOIS, UNE FOIS moteur_recherche.py lancer!!!!)
 # TODO: Pouvoir relancer un appel API si la thématique ou l'auteur change
+# TODO: Rendre les champs des classes privés
 
 
 Textes = []   # docs pour stocker les textes(corps de texte)
@@ -527,7 +528,7 @@ def main(nbDocumentReddit = 10, nbDocumentArvix= 10, thematique="physiology", mo
     print("---------------Premières Manipulations-----------------")
     # On affiche le nombre de documents après le traitement
     print(f"Nombre de documents après traitement : {len(collection)} ")
-    for texte, i in enumerate(df["Texte"]):
+    for i, texte in enumerate(df["Texte"]):
         # print(type(texte))
         print(f"\nPour le document {i} : ")
         nbMots = str(texte).split(" ")
@@ -560,7 +561,8 @@ def main(nbDocumentReddit = 10, nbDocumentArvix= 10, thematique="physiology", mo
     print("Test Singleton")
     corpus2 = Corpus("Mon corpus 2", id2doc, id2aut)
     # Retourne Mon corpus, 
-    print(f"On a créer corpus2 avec comme nom : Mon corpus 2, mais si on affiche son nom on obtient : {corpus2.nom} car on ne créer qu'un seul unique corpus(singleton, on revoit instance[0] -l'original)") 
+    print("On a créer corpus2 avec comme nom : Mon corpus 2, mais si on affiche son nom on devrait obtenir Mon corpus ")
+    print(f"On obtient : {corpus2.nom} car c'est le nom de notre seul et unique corpus(singleton, on revoit l'original si on essaie d'un créer plus que 1)")
 
     ##########Démonstration patron de conception Factory##########
     # ajout des documents dans le corpus un à un
@@ -614,6 +616,8 @@ def main(nbDocumentReddit = 10, nbDocumentArvix= 10, thematique="physiology", mo
     print(corpus.getVocab_digeste(10)) # clef : mots, valeurs : dictionnaire id, nb_frequence, nbOccurrencesTotales, nbDocumentsContenantMot
     print("")
 
+    print(f"Test nombre de mots différents dans le vocabulaire : {len(corpus.vocab)} \n")
+
     print("Test sparse matrix")
     print(corpus.definir_matrice()) # retourne la matrice creuse, print les éntrées non nulles (DocumentxMot) et le nb d'occurence
 
@@ -631,9 +635,7 @@ def main(nbDocumentReddit = 10, nbDocumentArvix= 10, thematique="physiology", mo
     # résultat proche de 1 -> important
 
     print("\n-----------------Moteur de recherche-----------------\n")
-    # Demander à l'utilisatuer mot clef -> input puis faire une interface et changer la valeur
 
-    # transformer ces mots-clefs sous la forme d'un vecteur sur le vocabulaire précédement construit,
 
     # Pour tester, on n'a choisi que des mots présent dans un seul document, on va tester si il n'y a que lui qui a une similarité supérieur à 0
     
